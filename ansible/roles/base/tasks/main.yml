@@ -1,0 +1,26 @@
+- include_tasks: dir-create-secrets.yml
+
+- name: Install Oh My Zsh
+  ansible.builtin.import_tasks: install-oh-my-zsh.yml
+  when: ansible_facts.os_family == 'Debian'
+
+- name: Console setup for Debian family distributions
+  ansible.builtin.include_tasks: debian-console-setup.yml
+  when: ansible_facts.os_family == 'Debian'
+
+- name: Copy aliases to each user's home directory
+  ansible.builtin.copy:
+    src: "aliases"
+    dest: "~{{ ws_user }}/.aliases"
+    owner: "{{ ws_user }}"
+    group: "{{ ws_user }}"
+    mode: 0644
+
+- name: Make sure .zshrc imports the aliases file
+  lineinfile:
+    path: "~{{ ws_user }}/.zshrc"
+    line: "source ~/.aliases"
+    create: yes
+    
+- name: Install Nerd Fonts
+  import_tasks: install-nerd-fonts.yml 

@@ -1,0 +1,11 @@
+oh_my_zsh:
+  theme: agnoster
+  plugins:
+    - git
+  update_mode: auto
+  update_frequency: 10
+oh_my_zsh_dependencies:
+  - git
+  - zsh
+oh_my_zsh_zsh_path: /bin/zsh
+

@@ -1,0 +1,95 @@
+- name: Update from git
+  ansible.builtin.git:
+    repo: "https://github.com/powerline/fonts.git"
+    dest: "~{{ ws_user }}/fonts/powerline"
+    depth: 1
+    force: yes
+    
+- name: Select fonts to install
+  ansible.builtin.find:
+    recurse: yes
+    use_regex: yes
+    paths: "~{{ ws_user }}/fonts/powerline"
+  register: fonts_to_install
+
+# # - debug: var=fonts_to_install
+
+- name: Make sure the local fonts directory exists
+  ansible.builtin.file:
+    path: "~{{ ws_user }}/.local/share/fonts"
+    state: directory
+
+- name: Copy fonts to .local
+  ansible.builtin.copy:
+    dest: "~{{ ws_user }}/.local/share/fonts/{{ item.path | basename }}"
+    src: "{{ item.path }}"
+    remote_src: yes
+  loop: "{{ fonts_to_install.files }}"
+
+- name: Recursively set the  local share fonts directory to correct permissions
+  ansible.builtin.file:
+    path: "~{{ ws_user }}/.local/share/fonts"
+    recurse: yes
+    owner: "{{ ws_user }}"
+    group: "{{ ws_user }}"
+
+- name: Update font cache
+  ansible.builtin.shell: fc-cache -f -v
+
+# - name: Removed all the fonts
+#   ansible.builtin.file:
+#     path: "{{ ws_user }}/fonts/"
+#     state: absent
+
+# - set_fact:
+#     font_directory: "{{ 'Library/Fonts' if ansible_os_family == 'Darwin' else '.local/share/fonts' }}"
+
+# - name: install fontconfig
+#   become: "{{ ansible_os_family == 'Debian' }}"
+#   package:
+#     state: present
+#     name: "{{ item }}"
+#   with_items:
+#     - fontconfig
+#   tags:
+#     - packages
+#     - powerline-fonts
+
+# - name: download powerline-fonts repository from github
+#   git:
+#     repo: 'https://github.com/powerline/fonts.git'
+#     dest: /tmp/powerline-fonts
+#   tags:
+#     - powerline-fonts
+
+# - name: ensure all users have a local fonts directory
+#   file:
+#     dest: "~{{ ws_user }}/.local/share/fonts"
+#     state: directory
+#     owner: "{{ ws_user }}"
+#     group: "{{ ws_user }}"
+
+# - name: copy fonts
+#   command: cp -r /tmp/powerline-fonts/{{ item[1] }} {{ '~' ~ item[0].user ~ '/' ~ font_directory | expanduser }}
+#   with_nested:
+#    - "{{ powerline_users }}"
+#    - "{{ powerline_fonts }}"
+#   tags:
+#     - powerline-fonts
+
+# - name: set fonts directory ownership
+#   file:
+#     dest: "{{ '~' ~ item[0].user ~ '/' ~ font_directory ~ '/' ~ item[1] | expanduser }}"
+#     state: directory
+#     owner: "{{ item[0].user }}"
+#     # group: "{{ item[0].user }}"
+#   with_nested:
+#    - "{{ powerline_users }}"
+#    - "{{ powerline_fonts }}"
+#   ignore_errors: yes
+#   tags:
+#     - powerline-fonts
+
+# - name: reset font cache
+#   command: fc-cache -f {{ '~' ~ item.user ~ '/' ~ font_directory | expanduser }}
+#   with_items: "{{ powerline_users }}"

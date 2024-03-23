@@ -1,0 +1,35 @@
+---
+- name: Install dependencies
+  become: true
+  package:
+    name: '{{ oh_my_zsh_dependencies }}'
+    state: present
+
+- name: Clone oh-my-zsh for users
+  become: true
+  command: 'git clone -c core.autocrlf=input --depth=1 https://github.com/ohmyzsh/ohmyzsh.git .oh-my-zsh'
+  args:
+    chdir: '~{{ ws_user }}'
+    creates: '~{{ ws_user }}/.oh-my-zsh'
+
+- name: Set default shell for users
+  become: true
+  user:
+    name: '{{ ws_user }}'
+    shell: '{{ oh_my_zsh_zsh_path }}'
+
+- name: Write .zshrc for users
+  become: true
+  template:
+    src: zshrc.j2
+    dest: '~{{ ws_user }}/.zshrc'
+    backup: true
+    mode: 'u=rw,go=r'
+
+- name: Set permissions of oh-my-zsh for users
+  become: true
+  file:
+    path: '~{{ ws_user }}/.oh-my-zsh'
+    mode: 'go-w'
+    recurse: true
+    owner: '{{ ws_user }}'

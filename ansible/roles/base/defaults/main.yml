@@ -1,0 +1,8 @@
+---
+oh_my_zsh_theme: agnoster
+oh_my_zsh_plugins:
+  - git
+oh_my_zsh_install: true
+oh_my_zsh_update_mode: disabled
+oh_my_zsh_update_frequency: 13
+oh_my_zsh_write_zshrc: true

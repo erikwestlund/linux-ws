@@ -1,0 +1,62 @@
+- name: Install required software
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Install the required packages
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - python3
+        - python3-pip
+        - python3-venv
+        - python3-dev
+        - neovim
+        - jq
+        - tmux
+        - zsh
+        - git
+        - curl
+        - unzip
+        - wget
+        - build-essential
+        - libssl-dev
+        - libffi-dev
+        - python3-setuptools
+        - python3-wheel
+        - google-chrome-stable
+        - sublime-text
+      when: ansible_os_family == "Debian"
+
+
+- name: Install 1password
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Download 1password
+      get_url:
+        url: https://downloads.1password.com/linux/debian/amd64/stable/1password-latest.deb
+        dest: /tmp/1password-latest.deb
+
+    - name: Install 1password
+      apt:
+        deb: /tmp/1password-latest.deb
+      become: yes
+      when: ansible_os_family == "Debian"  
+
+- name: Sync neovim config from git
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Clone neovim config
+      git:
+        repo: https://github.com/erikwestlund/neovim.git
+        dest: ~/.config/nvim
+        update: yes
+            
+  
+# - name: Do base install 
+#   hosts: localhost
+#   become: yes
+#   roles:
+#     - role: base

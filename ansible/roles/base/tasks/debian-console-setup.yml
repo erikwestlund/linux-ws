@@ -1,0 +1,22 @@
+- name: Check if console-setup exists
+  ansible.builtin.stat:
+    path: /etc/default/console-setup
+  register: console_setup_file
+
+- name: Install console-setup
+  become: true
+  ansible.builtin.apt:
+    name: console-setup
+    state: present
+  when: console_setup_file.stat.exists
+
+- name: Edit console-setup to utf-8
+  become: true
+  ansible.builtin.lineinfile:
+    dest: /etc/default/console-setup
+    regexp: ^CHARMAP=
+    line: CHARMAP="UTF-8"
+    state: present
+  when: console_setup_file.stat.exists
+  notify:
+    - dpkg_reconfigure_console_setup
