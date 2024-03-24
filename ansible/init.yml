@@ -54,9 +54,32 @@
         dest: ~/.config/nvim
         update: yes
             
-  
 # - name: Do base install 
 #   hosts: localhost
 #   become: yes
 #   roles:
-#     - role: base
+#     - role: base           
+
+- name: Install spotify
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Get spotify key
+      get_url:
+        url: https://download.spotify.com/debian/pubkey_6224F9941A8AA6D1.gpg       
+        dest: /tmp/pubkey_6224F9941A8AA6D1.gpg
+      when: ansible_os_family == "Debian"
+    - name: Add spotify key
+      apt_key:
+        file: /tmp/pubkey_6224F9941A8AA6D1.gpg
+      when: ansible_os_family == "Debian"
+    - name: Add spotify repo
+      apt_repository:
+        repo: deb http://repository.spotify.com stable non-free
+        state: present
+      when: ansible_os_family == "Debian"
+    - name: Install spotify
+      apt:
+        name: spotify-client
+        state: present
+      when: ansible_os_family == "Debian"

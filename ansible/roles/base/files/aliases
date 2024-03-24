@@ -67,3 +67,9 @@ alias b="git branch"
 alias co="git checkout"
 alias cob="git checkout -b"
 
+# vim to neovim
+alias vim="nvim"
+alias vi="nvim"
+alias v="nvim"
+alias n="nvim"
+
