@@ -28,6 +28,11 @@
         - sublime-text
       when: ansible_os_family == "Debian"
 
+- name: Do base install 
+  hosts: localhost
+  become: yes
+  roles:
+    - role: base           
 
 - name: Install 1password
   hosts: localhost
@@ -54,12 +59,6 @@
         dest: ~/.config/nvim
         update: yes
             
-# - name: Do base install 
-#   hosts: localhost
-#   become: yes
-#   roles:
-#     - role: base           
-
 - name: Install spotify
   hosts: localhost
   become: yes
@@ -81,5 +80,27 @@
     - name: Install spotify
       apt:
         name: spotify-client
+        state: present
+      when: ansible_os_family == "Debian"
+- name: Install albert
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Add albert repo
+      apt_repository:
+        repo: "deb http://download.opensuse.org/repositories/home:/manuelschneid3r/xUbuntu_22.04/ /"
+        state: present
+      when: ansible_os_family == "Debian"
+    - name: Add albert key
+      apt_key:
+        url: https://download.opensuse.org/repositories/home:manuelschneid3r/xUbuntu_22.04/Release.key
+      when: ansible_os_family == "Debian"
+    - name: Update apt
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+    - name: Install albert
+      apt:
+        name: albert
         state: present
       when: ansible_os_family == "Debian"
